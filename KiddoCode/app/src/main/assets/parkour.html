@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏃 KiddoCode - 跑酷大冒险</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+            padding: 20px;
+        }
+        h1 { color: white; text-align: center; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .game-info {
+            background: rgba(255,255,255,0.95); padding: 15px 30px; border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;
+            display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;
+        }
+        .stat { color: #2c3e50; }
+        .stat-value { font-weight: bold; color: #e74c3c; font-size: 28px; }
+        .game-container {
+            position: relative; width: 400px; height: 300px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 70%, #228B22 70%);
+            border-radius: 15px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .ground {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 90px;
+            background: linear-gradient(to bottom, #90EE90, #228B22);
+        }
+        .player {
+            position: absolute; left: 50px; bottom: 90px;
+            width: 40px; height: 50px; font-size: 40px; transition: bottom 0.1s;
+        }
+        .obstacle {
+            position: absolute; bottom: 90px; width: 30px; height: 50px;
+            background: #e74c3c; border-radius: 5px;
+        }
+        .coin {
+            position: absolute; bottom: 120px; font-size: 30px;
+        }
+        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+        button {
+            padding: 12px 25px; font-size: 16px; border: none; border-radius: 12px;
+            cursor: pointer; font-weight: bold; transition: all 0.3s ease;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-secondary { background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); color: white; }
+        .btn-jump {
+            padding: 20px 50px; font-size: 24px; margin-top: 20px;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+        .instructions {
+            background: white; padding: 20px; border-radius: 15px;
+            margin-top: 20px; max-width: 500px; text-align: center;
+        }
+        .instructions h3 { color: #2c3e50; margin-bottom: 10px; }
+        .instructions p { color: #555; line-height: 1.6; }
+    </style>
+    <link rel="stylesheet" href="celebration-system.css">
+</head>
+<body>
+    <h1>🏃 跑酷大冒险</h1>
+    
+    <div class="game-info">
+        <div class="stat">得分: <span class="stat-value" id="score">0</span></div>
+        <div class="stat">距离: <span class="stat-value" id="distance">0</span>m</div>
+    </div>
+    
+    <div class="game-container" id="game-container">
+        <div class="ground"></div>
+        <div class="player" id="player">🏃</div>
+    </div>
+    
+    <button class="btn-primary btn-jump" onclick="jump()">⬆️ 跳</button>
+    
+    <div class="btn-group">
+        <button class="btn-secondary" onclick="startGame()">▶️ 开始</button>
+        <button class="btn-secondary" onclick="resetGame()">🔄 重置</button>
+    </div>
+    
+    <div class="instructions">
+        <h3>📖 怎么玩？</h3>
+        <p>
+            点击跳按钮或按空格键跳跃，躲避障碍物！<br>
+            收集金币获得更高分数！
+        </p>
+    </div>
+
+    <script src="celebration-system.js"></script>
+    <script>
+        let score = 0;
+        let distance = 0;
+        let isJumping = false;
+        let gameRunning = false;
+        let playerY = 0;
+        let obstacles = [];
+        let coins = [];
+        let gameLoop;
+        let spawnTimer;
+        
+        function startGame() {
+            if (gameRunning) return;
+            gameRunning = true;
+            score = 0;
+            distance = 0;
+            obstacles = [];
+            coins = [];
+            playerY = 0;
+            updateUI();
+            clearObstacles();
+            gameLoop = setInterval(update, 50);
+            spawnTimer = setInterval(spawn, 1500);
+        }
+        
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('distance').textContent = distance;
+        }
+        
+        function clearObstacles() {
+            const container = document.getElementById('game-container');
+            document.querySelectorAll('.obstacle').forEach(el => el.remove());
+            document.querySelectorAll('.coin').forEach(el => el.remove());
+        }
+        
+        function update() {
+            distance++;
+            if(distance % 10 === 0) score++;
+            updateUI();
+            
+            const player = document.getElementById('player');
+            player.style.bottom = (90 + playerY) + 'px';
+            
+            if(isJumping) {
+                playerY += 8;
+                if(playerY >= 100) isJumping = false;
+            } else if(playerY > 0) {
+                playerY -= 8;
+                if(playerY < 0) playerY = 0;
+            }
+            
+            const container = document.getElementById('game-container');
+            const obsElements = document.querySelectorAll('.obstacle');
+            const coinElements = document.querySelectorAll('.coin');
+            
+            obsElements.forEach((el, i) => {
+                let pos = parseInt(el.style.left || '400') - 10;
+                el.style.left = pos + 'px';
+                if(pos < -50) el.remove();
+                if(pos < 90 && pos > 10 && playerY < 60) {
+                    endGame();
+                }
+            });
+            
+            coinElements.forEach((el, i) => {
+                let pos = parseInt(el.style.left || '400') - 10;
+                el.style.left = pos + 'px';
+                if(pos < -50) el.remove();
+                if(pos < 90 && pos > 10 && playerY < 100) {
+                    el.remove();
+                    score +=10;
+                    updateUI();
+                }
+            });
+            
+            if(distance > 0 && distance % 100 === 0) {
+                showWin();
+            }
+        }
+        
+        function spawn() {
+            if(!gameRunning) return;
+            if(Math.random() > 0.5) {
+                const obstacle = document.createElement('div');
+                obstacle.className = 'obstacle';
+                obstacle.style.left = '400px';
+                obstacle.textContent = '🚧';
+                obstacle.style.background = 'transparent';
+                obstacle.style.fontSize = '35px';
+                obstacle.style.display = 'flex';
+                obstacle.style.alignItems = 'center';
+                obstacle.style.justifyContent = 'center';
+                document.getElementById('game-container').appendChild(obstacle);
+            }
+            if(Math.random() > 0.6) {
+                const coin = document.createElement('div');
+                coin.className = 'coin';
+                coin.style.left = '400px';
+                coin.style.bottom = (100 + Math.random() * 100) + 'px';
+                coin.textContent = '⭐';
+                document.getElementById('game-container').appendChild(coin);
+            }
+        }
+        
+        function jump() {
+            if(!isJumping && playerY === 0) {
+                isJumping = true;
+            }
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if(e.key === ' ' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                jump();
+            }
+            if(e.key === 's' && !gameRunning) startGame();
+        });
+        
+        function endGame(showMessage) {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            clearInterval(spawnTimer);
+            if(showMessage !== false) {
+                alert('游戏结束！得分: ' + score + '，距离: ' + distance + 'm');
+            }
+        }
+        
+        function resetGame() {
+            endGame(false);
+            clearObstacles();
+            score = 0;
+            distance = 0;
+            playerY = 0;
+            updateUI();
+            document.getElementById('player').style.bottom = '90px';
+        }
+        
+        function showWin() {
+            endGame(false);
+            window.kiddoCelebration.saveAchievement({ stars:3, levelCompleted:true });
+            window.kiddoCelebration.showEnhancedWin(
+                '跑酷大冒险', '太棒了！', 3, { '得分': score, '距离': distance + 'm' },
+                { replay: () => { resetGame(); startGame(); } }
+            );
+        }
+    </script>
+</body>
+</html>

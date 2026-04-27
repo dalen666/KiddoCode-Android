@@ -1,0 +1,206 @@
+/* KiddoCode 儿童庆祝系统样式 */
+
+/* 五彩纸屑动画 */
+@keyframes confetti-fall {
+    0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes confetti-float {
+    0%, 100% { transform: translateX(-20px); }
+    50% { transform: translateX(20px); }
+}
+
+.confetti-piece {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    animation: confetti-fall 3s linear forwards;
+    z-index: 9999;
+}
+
+/* 星星雨 */
+@keyframes star-rain {
+    0% {
+        transform: translateY(-100vh) scale(0) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) scale(1) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.star-drop {
+    position: fixed;
+    font-size: 32px;
+    animation: star-rain 2.5s ease-out forwards;
+    z-index: 9998;
+}
+
+/* 庆祝标题动画 */
+@keyframes bounce-in {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes glow-pulse {
+    0%, 100% {
+        text-shadow: 0 0 10px #ff6b6b, 0 0 20px #ff6b6b, 0 0 30px #ff6b6b;
+    }
+    50% {
+        text-shadow: 0 0 20px #feca57, 0 0 40px #feca57, 0 0 60px #feca57;
+    }
+}
+
+.celebrate-title {
+    animation: bounce-in 0.8s ease-out, glow-pulse 2s ease-in-out infinite;
+}
+
+/* 徽章获得动画 */
+@keyframes badge-earned {
+    0% { transform: scale(0) rotate(-360deg); }
+    50% { transform: scale(1.3) rotate(180deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+/* 庆祝按钮 */
+.celebrate-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.celebrate-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* 彩带背景 */
+.celebration-background {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+    animation: gradient-shift 3s ease infinite;
+}
+
+@keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* 角色表情动画 */
+@keyframes celebrate-character {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    25% { transform: translateY(-10px) rotate(0deg); }
+    50% { transform: translateY(-5px) rotate(5deg); }
+    75% { transform: translateY(-10px) rotate(0deg); }
+}
+
+.celebrate-character {
+    animation: celebrate-character 0.8s ease-in-out infinite;
+}
+
+/* 粒子效果 */
+.particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9997;
+}
+
+/* 进度展示样式 */
+.progress-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tree-level {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.tree-item {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    transition: all 0.3s ease;
+}
+
+.tree-item.unlocked {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.tree-item.locked {
+    background: #ddd;
+    color: #999;
+}
+
+/* 分享按钮样式 */
+.share-btn {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-weight: bold;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.share-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+/* 胜利弹窗样式增强 */
+.win-modal-enhanced {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.win-modal-enhanced.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.win-content-enhanced {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #fd79a8 100%);
+    border-radius: 30px;
+    padding: 40px;
+    text-align: center;
+    max-width: 500px;
+    width: 90%;
+    transform: scale(0.8);
+    transition: transform 0.5s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.win-modal-enhanced.active .win-content-enhanced {
+    transform: scale(1);
+}

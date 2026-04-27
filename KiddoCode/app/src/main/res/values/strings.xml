@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">KiddoCode - 儿童编程</string>
+    
+    <!-- 导航栏 -->
+    <string name="nav_home">首页</string>
+    <string name="nav_coding">编程</string>
+    <string name="nav_lessons">课程</string>
+    <string name="nav_progress">进度</string>
+    
+    <!-- 首页 -->
+    <string name="welcome_title">欢迎来到KiddoCode!</string>
+    <string name="welcome_subtitle">让我们一起快乐学习编程!</string>
+    <string name="start_coding">开始编程</string>
+    <string name="view_lessons">查看课程</string>
+    <string name="check_progress">我的进度</string>
+    
+    <!-- 编程页面 -->
+    <string name="coding_title">图形化编程</string>
+    <string name="coding_instructions">拖拽积木到工作区，点击运行看看效果!</string>
+    <string name="btn_run">运行</string>
+    <string name="btn_clear">清空</string>
+    <string name="btn_reset">重置</string>
+    
+    <!-- 课程页面 -->
+    <string name="lessons_title">学习课程</string>
+    <string name="lesson_1_title">第一课：认识积木</string>
+    <string name="lesson_1_desc">学习基本的编程积木，开始我们的编程之旅！</string>
+    <string name="lesson_2_title">第二课：移动和旋转</string>
+    <string name="lesson_2_desc">学习如何控制角色的移动和旋转</string>
+    <string name="lesson_3_title">第三课：循环与重复</string>
+    <string name="lesson_3_desc">学习使用循环积木，让程序更高效</string>
+    <string name="lesson_4_title">第四课：条件判断</string>
+    <string name="lesson_4_desc">学习如果...那么...的逻辑判断</string>
+    <string name="lesson_5_title">第五课：综合练习</string>
+    <string name="lesson_5_desc">运用所学知识，完成有趣的编程任务</string>
+    
+    <!-- 进度页面 -->
+    <string name="progress_title">我的学习进度</string>
+    <string name="stars_collected">已收集星星：</string>
+    <string name="lessons_completed">完成课程：</string>
+    <string name="achievements">成就：</string>
+    <string name="keep_learning">继续努力！</string>
+    
+    <!-- 通用 -->
+    <string name="btn_back">返回</string>
+    <string name="btn_next">下一步</string>
+    <string name="success">太棒了！</string>
+    <string name="retry">再试一次</string>
+</resources>

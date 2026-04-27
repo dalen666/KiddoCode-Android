@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 KiddoCode - 接物小游戏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px;
+        }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 10px; }
+        .level-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 15px 30px; border-radius: 15px;
+            margin-bottom: 15px; text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .game-info {
+            background: white; padding: 15px 30px; border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px; display: flex; gap: 30px;
+            font-size: 20px; flex-wrap: wrap; justify-content: center;
+        }
+        .stat { color: #2c3e50; }
+        .stat-value { font-weight: bold; color: #e74c3c; font-size: 28px; }
+        .game-container {
+            position: relative; width: 500px; height: 600px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #90EE90 90%, #228B22 100%);
+            border-radius: 20px; overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+        .basket {
+            position: absolute; bottom: 20px; width: 80px; height: 60px;
+            background: #8B4513; border-radius: 0 0 40px 40px;
+            border: 4px solid #654321; display: flex;
+            justify-content: center; align-items: center; font-size: 40px;
+        }
+        .basket::before { content: '🧺'; }
+        .fruit {
+            position: absolute; width: 50px; height: 50px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 40px;
+        }
+        .cloud {
+            position: absolute; font-size: 50px; opacity: 0.8;
+        }
+        .btn-container {
+            margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;
+            justify-content: center;
+        }
+        button {
+            padding: 12px 25px; font-size: 16px; border: none;
+            border-radius: 12px; cursor: pointer;
+            transition: all 0.3s ease; font-weight: bold;
+        }
+        .start-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .level-btn { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .reset-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .back-btn { background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); color: white; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+        .instructions {
+            background: white; padding: 20px; border-radius: 15px;
+            margin-top: 20px; max-width: 600px; text-align: center;
+        }
+        .instructions h3 { color: #2c3e50; margin-bottom: 10px; }
+        .instructions p { color: #555; line-height: 1.6; }
+        .level-select-screen {
+            background: white; padding: 30px; border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            max-width: 600px; text-align: center;
+        }
+        .levels-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 15px; margin-bottom: 20px;
+        }
+        .level-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 20px; border-radius: 15px;
+            cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .level-card:hover:not(.locked) {
+            transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .level-card.locked {
+            background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+            cursor: not-allowed;
+        }
+        .level-card.completed {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .level-number { font-size: 2rem; font-weight: bold; margin-bottom: 5px; }
+        .level-stars { font-size: 1.5rem; margin-top: 5px; }
+        .level-target { font-size: 0.9rem; opacity: 0.9; }
+        .voice-controls {
+            background: white; padding: 12px 24px; border-radius: 15px;
+            margin-bottom: 15px; display: flex; gap: 15px; align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .voice-toggle {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 10px 20px; border: none;
+            border-radius: 10px; cursor: pointer; font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .voice-toggle.off {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+        .voice-test-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white; padding: 10px 20px; border: none;
+            border-radius: 10px; cursor: pointer; font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .speaking-indicator {
+            position: fixed; bottom: 20px; right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 12px 24px; border-radius: 30px;
+            font-size: 16px; display: none; align-items: center;
+            gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 9999;
+        }
+        .speaking-indicator.active {
+            display: flex; animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @media (max-width: 600px) {
+            .game-container { width: 350px; height: 500px; }
+        }
+    </style>
+    <link rel="stylesheet" href="celebration-system.css">
+</head>
+<body>
+    <h1>🎮 接物小游戏 - KiddoCode</h1>
+    
+    <div class="voice-controls">
+        <button class="voice-toggle" id="voiceToggle" onclick="toggleVoice()">🔊 自动语音开</button>
+        <button class="voice-test-btn" onclick="testVoice()">🎤 测试语音</button>
+    </div>
+    
+    <div class="level-select-screen" id="levelSelectScreen">
+        <h2>🎯 选择关卡</h2>
+        <div class="levels-grid" id="levelsGrid"></div>
+    </div>
+    
+    <div id="gameScreen" style="display: none;">
+        <div class="level-header" id="levelHeader">
+            <h3 id="levelTitle">关卡 1</h3>
+            <p id="levelDescription">接住水果得分！</p>
+        </div>
+        
+        <div class="game-info">
+            <div class="stat">得分：<span class="stat-value" id="score">0</span></div>
+            <div class="stat">目标：<span class="stat-value" id="targetScore">10</span></div>
+            <div class="stat">剩余时间：<span class="stat-value" id="timeLeft">60</span>秒</div>
+        </div>
+        
+        <div class="game-container" id="gameContainer">
+            <div class="cloud" style="top: 30px; left: 50px;">☁️</div>
+            <div class="cloud" style="top: 60px; left: 350px;">☁️</div>
+            <div class="basket" id="basket"></div>
+        </div>
+        
+        <div class="btn-container">
+            <button class="start-btn" id="startBtn" onclick="startGame()">▶️ 开始游戏</button>
+            <button class="level-btn" onclick="showLevelSelect()">📋 关卡选择</button>
+            <button class="reset-btn" onclick="resetGame()">🔄 重新开始</button>
+        </div>
+    </div>
+    
+    <div class="speaking-indicator" id="speakingIndicator">
+        <div class="audio-wave"><span></span><span></span><span></span><span></span></div>
+        <span>正在播放...</span>
+    </div>
+    
+    <div class="instructions" id="instructions">
+        <h3>📖 这个项目教给我们什么？</h3>
+        <p>
+            🎯 <strong>运动控制</strong>：学会用键盘控制角色移动<br>
+            💥 <strong>碰撞检测</strong>：检测水果是否碰到篮子<br>
+            📊 <strong>变量系统</strong>：记录和显示得分<br>
+            🎨 <strong>创造力</strong>：可以自定义游戏外观！
+        </p>
+    </div>
+
+    <script src="celebration-system.js"></script>
+    <script>
+        const LEVELS = [
+            { id:1, name:'新手入门', description:'接住水果得分！', targetScore:10, timeLimit:60, fruitSpeed:2, spawnInterval:1500, fruitTypes:['🍎','🍊','🍓'], threeStars:20, twoStars:15, oneStar:10 },
+            { id:2, name:'速度挑战', description:'水果掉得更快了！', targetScore:15, timeLimit:50, fruitSpeed:3, spawnInterval:1200, fruitTypes:['🍎','🍊','🍓','🍋'], threeStars:25, twoStars:20, oneStar:15 },
+            { id:3, name:'水果派对', description:'更多水果来袭！', targetScore:20, timeLimit:50, fruitSpeed:3, spawnInterval:1000, fruitTypes:['🍎','🍊','🍓','🍋','🍇','🍌'], threeStars:35, twoStars:28, oneStar:20 },
+            { id:4, name:'极限挑战', description:'考验你的反应！', targetScore:25, timeLimit:45, fruitSpeed:4, spawnInterval:800, fruitTypes:['🍎','🍊','🍓','🍋','🍇','🍌','🍑','🍒'], threeStars:45, twoStars:35, oneStar:25 },
+            { id:5, name:'大师之路', description:'终极挑战！', targetScore:30, timeLimit:40, fruitSpeed:5, spawnInterval:700, fruitTypes:['🍎','🍊','🍓','🍋','🍇','🍌','🍑','🍒','🥝','🍉'], threeStars:55, twoStars:42, oneStar:30 },
+            { id:6, name:'传说级', description:'你能完成吗？', targetScore:40, timeLimit:35, fruitSpeed:6, spawnInterval:600, fruitTypes:['🍎','🍊','🍓','🍋','🍇','🍌','🍑','🍒','🥝','🍉','🍐','🥭'], threeStars:70, twoStars:55, oneStar:40 }
+        ];
+
+        function loadProgress() {
+            const saved = localStorage.getItem('kiddocode_catch_progress');
+            return saved ? JSON.parse(saved) : { unlockedLevel:1, completedLevels:{} };
+        }
+
+        function saveProgress(progress) {
+            localStorage.setItem('kiddocode_catch_progress', JSON.stringify(progress));
+        }
+
+        let gameProgress = loadProgress();
+
+        class SmartVoiceSystem {
+            constructor() {
+                this.enabled = true;
+                this.synth = window.speechSynthesis;
+                this.speakingIndicator = document.getElementById('speakingIndicator');
+                this.voices = [];
+                this.currentVoice = null;
+                this.initVoices();
+            }
+            
+            initVoices() {
+                const loadVoices = () => {
+                    this.voices = this.synth.getVoices();
+                    this.currentVoice = this.voices.find(v => v.lang.includes('zh')) || this.voices[0];
+                };
+                loadVoices();
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = loadVoices;
+                }
+            }
+            
+            speak(text, lang = 'zh-CN', options = {}) {
+                return new Promise((resolve) => {
+                    if (!this.enabled) { resolve(); return; }
+                    try {
+                        this.synth.cancel();
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.lang = lang;
+                        utterance.rate = options.rate || 0.9;
+                        utterance.pitch = options.pitch || 1.1;
+                        if (this.currentVoice) utterance.voice = this.currentVoice;
+                        utterance.onstart = () => this.showSpeakingIndicator();
+                        utterance.onend = () => { this.hideSpeakingIndicator(); resolve(); };
+                        utterance.onerror = () => { this.hideSpeakingIndicator(); resolve(); };
+                        this.synth.speak(utterance);
+                    } catch (e) { resolve(); }
+                });
+            }
+            
+            showSpeakingIndicator() { if (this.speakingIndicator) this.speakingIndicator.classList.add('active'); }
+            hideSpeakingIndicator() { if (this.speakingIndicator) this.speakingIndicator.classList.remove('active'); }
+            
+            toggle() {
+                this.enabled = !this.enabled;
+                if (!this.enabled) { this.synth.cancel(); this.hideSpeakingIndicator(); }
+                return this.enabled;
+            }
+            
+            speakWelcome() { return this.speak('小朋友你好呀！欢迎来玩接物小游戏！'); }
+            speakLevelIntro(levelName) { return this.speak('现在开始' + levelName + '！准备好了吗？'); }
+            speakCatchFruit() {
+                const praises = ['太棒了！接住了！','哇！好厉害！','好棒！又接住了！','太厉害了！','不错不错！继续加油！'];
+                return this.speak(praises[Math.floor(Math.random() * praises.length)]);
+            }
+            speakWin(stars) {
+                if (stars === 3) return this.speak('我的天呀！三颗星！太厉害了！你是接物小能手！');
+                if (stars === 2) return this.speak('太棒了！两颗星！表现很棒！');
+                return this.speak('不错哦！完成了关卡！再试试能不能拿到更多星星！');
+            }
+            speakLose() { return this.speak('时间到了！没关系，再试一次吧！'); }
+        }
+
+        let voiceSystem = new SmartVoiceSystem();
+
+        let score = 0;
+        let basketPosition = 210;
+        let gameRunning = false;
+        let fruits = [];
+        let keys = {};
+        let currentLevel = null;
+        let timeLeft = 60;
+        let timerInterval = null;
+        let lastFruitTime = 0;
+
+        function toggleVoice() {
+            const isEnabled = voiceSystem.toggle();
+            const btn = document.getElementById('voiceToggle');
+            btn.textContent = isEnabled ? '🔊 自动语音开' : '🔇 自动语音关';
+            btn.classList.toggle('off', !isEnabled);
+        }
+
+        function testVoice() {
+            voiceSystem.speak('你好呀！语音系统正常工作哦！快来玩吧！');
+        }
+
+        function showLevelSelect() {
+            document.getElementById('levelSelectScreen').style.display = 'block';
+            document.getElementById('gameScreen').style.display = 'none';
+            stopGame();
+            renderLevels();
+        }
+
+        function renderLevels() {
+            const grid = document.getElementById('levelsGrid');
+            grid.innerHTML = '';
+            LEVELS.forEach((level) => {
+                const card = document.createElement('div');
+                const isLocked = level.id > gameProgress.unlockedLevel;
+                const progress = gameProgress.completedLevels[level.id];
+                card.className = 'level-card';
+                if (isLocked) card.classList.add('locked');
+                else if (progress) card.classList.add('completed');
+                let starsHtml = '';
+                if (progress) starsHtml = '⭐'.repeat(progress.stars) + '☆'.repeat(3 - progress.stars);
+                else if (!isLocked) starsHtml = '☆☆☆';
+                else starsHtml = '🔒';
+                card.innerHTML = `
+                    <div class="level-number">${isLocked ? '🔒' : level.id}</div>
+                    <div class="level-target">${level.name}</div>
+                    <div class="level-stars">${starsHtml}</div>
+                `;
+                if (!isLocked) card.onclick = () => startLevel(level.id);
+                grid.appendChild(card);
+            });
+        }
+
+        function startLevel(levelId) {
+            currentLevel = LEVELS.find(l => l.id === levelId);
+            document.getElementById('levelSelectScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('levelTitle').textContent = '关卡 ' + currentLevel.id + '：' + currentLevel.name;
+            document.getElementById('levelDescription').textContent = currentLevel.description;
+            document.getElementById('targetScore').textContent = currentLevel.targetScore;
+            resetGame();
+            voiceSystem.speakLevelIntro(currentLevel.name);
+        }
+
+        document.addEventListener('keydown', (e) => { keys[e.key] = true; });
+        document.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+        const basket = document.getElementById('basket');
+        const gameContainer = document.getElementById('gameContainer');
+
+        function updateBasket() {
+            if (keys['ArrowLeft'] && basketPosition > 0) basketPosition -= 8;
+            if (keys['ArrowRight'] && basketPosition < 420) basketPosition += 8;
+            basket.style.left = basketPosition + 'px';
+        }
+
+        function createFruit() {
+            if (!currentLevel) return;
+            const fruit = document.createElement('div');
+            fruit.className = 'fruit';
+            const types = currentLevel.fruitTypes;
+            fruit.textContent = types[Math.floor(Math.random() * types.length)];
+            fruit.style.left = (Math.random() * 450) + 'px';
+            fruit.style.top = '0px';
+            fruit.dataset.speed = currentLevel.fruitSpeed + Math.random();
+            gameContainer.appendChild(fruit);
+            fruits.push(fruit);
+        }
+
+        function updateFruits() {
+            for (let i = fruits.length - 1; i >= 0; i--) {
+                const fruit = fruits[i];
+                let currentTop = parseFloat(fruit.style.top);
+                let speed = parseFloat(fruit.dataset.speed);
+                fruit.style.top = (currentTop + speed) + 'px';
+                if (checkCollision(fruit, basket)) {
+                    score++; updateScore();
+                    voiceSystem.speakCatchFruit();
+                    fruit.remove(); fruits.splice(i, 1);
+                } else if (currentTop > 550) {
+                    fruit.remove(); fruits.splice(i, 1);
+                }
+            }
+        }
+
+        function checkCollision(element1, element2) {
+            const rect1 = element1.getBoundingClientRect();
+            const rect2 = element2.getBoundingClientRect();
+            return !(rect1.right < rect2.left || rect1.left > rect2.right || rect1.bottom < rect2.top || rect1.top > rect2.bottom);
+        }
+
+        function updateScore() { document.getElementById('score').textContent = score; }
+        function updateTime() { timeLeft--; document.getElementById('timeLeft').textContent = timeLeft; if (timeLeft <= 0) endGame(false); }
+
+        function gameLoop(timestamp) {
+            if (!gameRunning) return;
+            updateBasket();
+            if (timestamp - lastFruitTime > currentLevel.spawnInterval) {
+                createFruit(); lastFruitTime = timestamp;
+            }
+            updateFruits();
+            if (score >= currentLevel.targetScore) { endGame(true); return; }
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            if (!gameRunning && currentLevel) {
+                gameRunning = true;
+                timeLeft = currentLevel.timeLimit;
+                document.getElementById('timeLeft').textContent = timeLeft;
+                document.getElementById('startBtn').textContent = '🎮 游戏进行中...';
+                lastFruitTime = 0;
+                timerInterval = setInterval(updateTime, 1000);
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function stopGame() {
+            gameRunning = false;
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        }
+
+        function resetGame() {
+            score = 0; updateScore();
+            fruits.forEach(f => f.remove()); fruits = [];
+            basketPosition = 210; updateBasket();
+            stopGame();
+            document.getElementById('startBtn').textContent = '▶️ 开始游戏';
+            if (currentLevel) { timeLeft = currentLevel.timeLimit; document.getElementById('timeLeft').textContent = timeLeft; }
+        }
+
+        function endGame(won) {
+            stopGame();
+            if (won) {
+                let stars = 1;
+                if (score >= currentLevel.threeStars) stars = 3;
+                else if (score >= currentLevel.twoStars) stars = 2;
+                if (!gameProgress.completedLevels[currentLevel.id] ||
+                    gameProgress.completedLevels[currentLevel.id].stars < stars) {
+                    gameProgress.completedLevels[currentLevel.id] = { stars, bestScore: score };
+                }
+                if (currentLevel.id >= gameProgress.unlockedLevel && currentLevel.id < LEVELS.length) {
+                    gameProgress.unlockedLevel = currentLevel.id + 1;
+                }
+                saveProgress(gameProgress);
+                showWinModal(stars);
+            } else {
+                voiceSystem.speakLose();
+                alert('时间到了！再试一次吧！');
+                resetGame();
+            }
+        }
+
+        function showWinModal(stars) {
+            const result = window.kiddoCelebration.saveAchievement({ stars, levelCompleted: true });
+            result.newBadges.forEach(badge => {
+                setTimeout(() => window.kiddoCelebration.showBadgeNotification(badge), 1500);
+            });
+            window.kiddoCelebration.showEnhancedWin(
+                '接物小游戏',
+                currentLevel.name,
+                stars,
+                { '得分': score, '目标': currentLevel.targetScore },
+                { replay: () => restartLevel(), next: () => nextLevel(), select: () => showLevelSelect() }
+            );
+            voiceSystem.speakWin(stars);
+        }
+
+        function nextLevel() {
+            const nextLevelId = currentLevel.id + 1;
+            if (nextLevelId <= LEVELS.length) startLevel(nextLevelId);
+            else showLevelSelect();
+        }
+
+        function restartLevel() { startLevel(currentLevel.id); }
+        basket.style.left = basketPosition + 'px';
+        renderLevels();
+    </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 KiddoCode - 记忆翻牌游戏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+            padding: 20px;
+        }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 15px; }
+        .game-header {
+            background: rgba(255,255,255,0.95); padding: 20px; border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px;
+            display: flex; gap: 30px; flex-wrap: wrap; justify-content: center;
+        }
+        .stat-box { text-align: center; }
+        .stat-label { color: #7f8c8d; font-size: 14px; }
+        .stat-value { font-size: 28px; font-weight: bold; color: #e74c3c; }
+        .game-board {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 10px; max-width: 400px; width: 100%; margin-bottom: 20px;
+        }
+        .card {
+            width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px; cursor: pointer; display: flex;
+            justify-content: center; align-items: center; font-size: 36px;
+            transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            color: white;
+        }
+        .card.flipped, .card.matched { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .card.matched { pointer-events: none; opacity: 0.7; }
+        .card:hover:not(.flipped):not(.matched) { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.25); }
+        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        button {
+            padding: 12px 25px; font-size: 16px; border: none; border-radius: 12px;
+            cursor: pointer; font-weight: bold; transition: all 0.3s ease;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-secondary { background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); color: white; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+        .instructions {
+            background: white; padding: 20px; border-radius: 15px;
+            margin-top: 20px; max-width: 600px; text-align: center;
+        }
+        .instructions h3 { color: #2c3e50; margin-bottom: 10px; }
+        .instructions p { color: #555; line-height: 1.6; }
+    </style>
+    <link rel="stylesheet" href="celebration-system.css">
+</head>
+<body>
+    <h1>🧠 记忆翻牌 - KiddoCode</h1>
+    
+    <div class="game-header">
+        <div class="stat-box">
+            <div class="stat-label">步数</div>
+            <div class="stat-value" id="moves">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">配对</div>
+            <div class="stat-value" id="pairs">0</div>
+        </div>
+    </div>
+    
+    <div class="game-board" id="gameBoard"></div>
+    
+    <div class="btn-group">
+        <button class="btn-primary" onclick="initGame()">🔄 新游戏</button>
+    </div>
+    
+    <div class="instructions">
+        <h3>📖 怎么玩？</h3>
+        <p>
+            点击卡片翻开来，找到相同的图案配对！<br>
+            记忆能力大挑战，看看你用几步完成！
+        </p>
+    </div>
+
+    <script src="celebration-system.js"></script>
+    <script>
+        const EMOJIS = ['🎈','🎨','🎭','🎪','🎬','🎵','🎸','🎹'];
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function initGame() {
+            matchedPairs = 0; moves = 0; flippedCards = [];
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('pairs').textContent = '0';
+            
+            cards = shuffle([...EMOJIS, ...EMOJIS]);
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            
+            cards.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                card.textContent = '❓';
+                card.onclick = () => flipCard(card);
+                board.appendChild(card);
+            });
+        }
+
+        function flipCard(card) {
+            if (flippedCards.length === 2) return;
+            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            
+            card.textContent = card.dataset.emoji;
+            card.classList.add('flipped');
+            flippedCards.push(card);
+            
+            if (flippedCards.length === 2) {
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            const isMatch = card1.dataset.emoji === card2.dataset.emoji;
+            
+            if (isMatch) {
+                setTimeout(() => {
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    matchedPairs++;
+                    document.getElementById('pairs').textContent = matchedPairs;
+                    flippedCards = [];
+                    if (matchedPairs === EMOJIS.length) {
+                        setTimeout(showWin, 500);
+                    }
+                }, 500);
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    card1.textContent = '❓';
+                    card2.textContent = '❓';
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        function showWin() {
+            window.kiddoCelebration.saveAchievement({ stars:3, levelCompleted:true });
+            window.kiddoCelebration.showEnhancedWin(
+                '记忆翻牌', '完成！', 3, { '步数': moves },
+                { replay: () => initGame() }
+            );
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

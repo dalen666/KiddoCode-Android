@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主色调 - 明亮活泼，适合儿童 -->
+    <color name="primary">#FF6B6B</color>
+    <color name="primary_dark">#E55B5B</color>
+    <color name="accent">#4ECDC4</color>
+    
+    <!-- 积木颜色 -->
+    <color name="block_motion">#FF9F43</color>
+    <color name="block_looks">#8854D0</color>
+    <color name="block_control">#FFD93D</color>
+    <color name="block_events">#6BCB77</color>
+    <color name="block_sound">#FF6B9D</color>
+    
+    <!-- 游戏颜色 -->
+    <color name="game_primary">#6C5CE7</color>
+    
+    <!-- 背景色 -->
+    <color name="background_light">#F8F9FA</color>
+    <color name="background_gradient_start">#FFE5E5</color>
+    <color name="background_gradient_end">#E5F6FF</color>
+    
+    <!-- 文字颜色 -->
+    <color name="text_primary">#2C3E50</color>
+    <color name="text_secondary">#7F8C8D</color>
+    <color name="text_light">#FFFFFF</color>
+    
+    <!-- UI元素 -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="divider">#E0E0E0</color>
+    <color name="shadow">#40000000</color>
+</resources>

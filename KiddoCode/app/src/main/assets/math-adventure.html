@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>➕ KiddoCode - 数学冒险王</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+            padding: 20px;
+        }
+        h1 { color: white; text-align: center; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .game-panel {
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); text-align: center;
+            max-width: 500px; width: 100%;
+        }
+        .question { font-size: 3rem; font-weight: bold; color: #2c3e50; margin: 30px 0; }
+        .input-container { margin: 20px 0; }
+        .answer-input {
+            font-size: 2rem; width: 150px; padding: 15px; text-align: center;
+            border: 3px solid #667eea; border-radius: 10px; outline: none;
+        }
+        .btn-group { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 30px; }
+        button {
+            padding: 15px 30px; font-size: 1.1rem; border: none; border-radius: 12px;
+            cursor: pointer; font-weight: bold; transition: all 0.3s ease;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-secondary { background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%); color: white; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+        .stats { display: flex; gap: 30px; justify-content: center; margin-bottom: 20px; }
+        .stat-box { text-align: center; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: #e74c3c; }
+        .stat-label { color: #7f8c8d; font-size: 14px; }
+        .feedback {
+            font-size: 1.5rem; font-weight: bold; margin: 15px 0;
+            min-height: 2rem;
+        }
+        .correct { color: #27ae60; }
+        .wrong { color: #e74c3c; }
+    </style>
+    <link rel="stylesheet" href="celebration-system.css">
+</head>
+<body>
+    <h1>➕ 数学冒险王</h1>
+    
+    <div class="game-panel">
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">得分</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">连续正确</div>
+            </div>
+        </div>
+        
+        <div class="question" id="question">1 + 1 = ?</div>
+        
+        <div class="input-container">
+            <input type="number" class="answer-input" id="answer" placeholder="答案" onkeypress="if(event.key === 'Enter') checkAnswer()">
+        </div>
+        
+        <div class="feedback" id="feedback"></div>
+        
+        <div class="btn-group">
+            <button class="btn-primary" onclick="checkAnswer()">✅ 检查</button>
+            <button class="btn-secondary" onclick="newQuestion()">🔄 下一题</button>
+        </div>
+    </div>
+
+    <script src="celebration-system.js"></script>
+    <script>
+        let score = 0;
+        let streak = 0;
+        let correctAnswer = 0;
+
+        function generateQuestion() {
+            const ops = ['+', '-', '×', '÷'];
+            const op = ops[Math.floor(Math.random() * 4)];
+            let num1, num2;
+            
+            switch(op) {
+                case '+':
+                    num1 = Math.floor(Math.random() * 50) + 1;
+                    num2 = Math.floor(Math.random() * 50) + 1;
+                    correctAnswer = num1 + num2;
+                    break;
+                case '-':
+                    num1 = Math.floor(Math.random() * 50) + 25;
+                    num2 = Math.floor(Math.random() * 25) + 1;
+                    correctAnswer = num1 - num2;
+                    break;
+                case '×':
+                    num1 = Math.floor(Math.random() * 12) + 1;
+                    num2 = Math.floor(Math.random() * 12) + 1;
+                    correctAnswer = num1 * num2;
+                    break;
+                case '÷':
+                    num2 = Math.floor(Math.random() * 9) + 2;
+                    correctAnswer = Math.floor(Math.random() * 9) + 1;
+                    num1 = num2 * correctAnswer;
+                    break;
+            }
+            
+            document.getElementById('question').textContent = `${num1} ${op} ${num2} = ?`;
+            document.getElementById('answer').value = '';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('answer').focus();
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answer').value);
+            const feedback = document.getElementById('feedback');
+            
+            if (userAnswer === correctAnswer) {
+                score += 10 + streak * 2;
+                streak++;
+                feedback.textContent = '🎉 太棒了！正确！';
+                feedback.className = 'feedback correct';
+                document.getElementById('score').textContent = score;
+                document.getElementById('streak').textContent = streak;
+                
+                if (streak >= 10 && score >= 100) {
+                    setTimeout(showWin, 800);
+                } else {
+                    setTimeout(newQuestion, 1200);
+                }
+            } else {
+                streak = 0;
+                feedback.textContent = `❌ 不对哦！正确答案是 ${correctAnswer}`;
+                feedback.className = 'feedback wrong';
+                document.getElementById('streak').textContent = streak;
+            }
+        }
+
+        function newQuestion() {
+            generateQuestion();
+        }
+
+        function showWin() {
+            window.kiddoCelebration.saveAchievement({ stars:3, levelCompleted:true });
+            window.kiddoCelebration.showEnhancedWin(
+                '数学冒险王', '你真棒！', 3, { '得分': score },
+                { replay: () => { score=0; streak=0; document.getElementById('score').textContent='0'; document.getElementById('streak').textContent='0'; newQuestion(); } }
+            );
+        }
+
+        generateQuestion();
+    </script>
+</body>
+</html>
